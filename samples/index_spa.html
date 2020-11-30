@@ -13,7 +13,7 @@
   <link rel="stylesheet"
 	  href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/styles/atom-one-dark.min.css">
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/highlight.min.js"></script>
-  <script src="index.js"></script>
+  <script src="index_spa.js"></script>
 
 <style>
 	.markdown-body{
@@ -40,12 +40,14 @@
 <script>
 	var baseUrl = 'md/'
 	var toc = []
+	var title=''
+	var init_mdpath = baseUrl + 'sample.md'
 	$(document).ready(function () {
 		var [ URL,  mdpath] = getMDPath() 
 		if (mdpath=='') {
-			mdpath= baseUrl + 'sample.md'
+			mdpath= init_mdpath
 		}
-		getMD(mdpath)
+		getMD(mdpath, false)
 	}); 
   </script>
 </body>

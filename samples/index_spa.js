@@ -85,21 +85,38 @@
 		  tocHTML += '<li><a href="#'+entry.anchor+'">'+entry.text+'<a></li>\n';
 		});
 		tocHTML += '</ul>';
-		document.getElementById('toc').innerHTML = tocHTML
-		document.getElementById('content').innerHTML = markhtml
+		$('#toc').html(tocHTML)
+		$('#content').html(markhtml)
+		$(document).attr("title",toc[0].text)
 
 		MathJax.typesetPromise() // re-render Math
 	}
 
-	getMD_Local = function(mdpath) {
-			fetch(mdpath)
-  			.then(response => response.text()).catch(function(){
-				  alert('Chrome Browser does not support.\n\nPlease start a web servivr (python -m http.server')
-				})
-			.then(text => callback(text))
+	getMD_Local = function(mdpath, history_push=true) {
+		if(history_push) {
+			window.history.pushState({ 'mdpath': mdpath}, '');
+		}
+		fetch(mdpath)
+		.then(response => response.text()).catch(function(){
+				alert('Chrome Browser does not support.\n\nPlease start a web servivr (python -m http.server')
+			})
+		.then(text => callback(text))
 	}
-	getMD_Web = function(mdpath) {
+	getMD_Web = function(mdpath, history_push=true) {
+		if(history_push) {
+			window.history.pushState({ 'mdpath': mdpath}, '');
+		}
 		$.get(mdpath, callback);
 	}
+
+	window.addEventListener('popstate', function(event) {
+		console.log(event)
+		if (event.state == null)
+			getMD(init_mdpath, false)
+		else {
+			console.log(event.state.mdpath) // event.state  always null  ????
+			getMD(event.state.mdpath, false)
+		}
+	   });
 
 	getMD = (location.protocol == 'file:') ? getMD_Local : getMD_Web
