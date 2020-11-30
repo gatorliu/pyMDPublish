@@ -10,19 +10,13 @@
 					first = true
 					continue
 				} else if("---" == mds[i].substring(0,3)) {
-					console.log(i)
 					i = parseInt(i) + 1
 					break;
 				}
 			}
-			console.log(i)
-			console.log(mds.length)
-			h = mds.slice(0,i).join('')
-			mdstring = mds.slice(i, mds.length).join('')
+			h = mds.slice(0,i).join('\n')
+			mdstring = mds.slice(i, mds.length).join('\n')
 		}
-		console.log(mdstring)
-		
-		
 		return [h, mdstring]
 	}
 
@@ -66,10 +60,9 @@
 	// var mdstring
 	//var config
 	marked.use({ renderer });
-	callback = function() {
+	callback = function(data) {
 		toc = [] // clean toc
-		const [configs, mdstring]  = splitHeader(this.responseText)
-		console.log(configs)
+		const [configs, mdstring]  = splitHeader(data)
 		var markhtml = marked(mdstring, {
 				//renderer: new marked.Renderer(),
 				highlight: function(code, language) {
@@ -97,9 +90,16 @@
 
 		MathJax.typesetPromise() // re-render Math
 	}
-	getMD = function(mdpath) {
-		var oReq = new XMLHttpRequest();
-		oReq.addEventListener("load", callback	);
-		oReq.open("GET", mdpath);
-		oReq.send();
+
+	getMD_Local = function(mdpath) {
+			fetch(mdpath)
+  			.then(response => response.text()).catch(function(){
+				  alert('Chrome Browser does not support.\n\nPlease start a web servivr (python -m http.server')
+				})
+			.then(text => callback(text))
 	}
+	getMD_Web = function(mdpath) {
+		$.get(mdpath, callback);
+	}
+
+	getMD = (location.protocol == 'file:') ? getMD_Local : getMD_Web
