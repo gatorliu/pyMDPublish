@@ -52,10 +52,19 @@ Table
 | 1 | item 1 |
 
 Link :  [Open math.md](math.md "title")
-
 Link :  [google](http://www.google.com)
-
 Link :  [Show Image](imgs/me.png "image")
+
+This is [an example][1] reference-style link.
+
+This is [an example] [1] reference-style link.
+
+This is [Open math.md][a] reference-style link.
 
 PIC : ![Me](imgs/me.png)
 
+
+
+
+[1]: http://google.com  "定義常用超連結的備註，不會顯示"
+[a]: math.md  "定義常用超連結的備註，不會顯示"

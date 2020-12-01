@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title></title>
+  <link rel="stylesheet" href="res/css/github-markdown.min.css">
+  <link rel="stylesheet" href="res/css/atom-one-dark.min.css"> 
+  <script src="res/js/jquery-3.5.1.min.js" ></script>
+  <script src="res/js/marked.min.js"></script>
+  <script src="res/js/tex-mml-chtml.js"></script>
+  <script src="res/js/highlight.min.js"></script>
+  <script src="index_spa.js"></script>
+<style>
+	.markdown-body{
+		box-sizing: border-box;
+		min-width: 200px;
+		max-width: 980px;
+		margin: 0 auto;
+		padding: 45px;
+	}
+	.markdown-body pre {
+		background-color: #282c34;
+	}
+
+	@media (max-width: 767px) {
+		.markdown-body {
+			padding: 15px;
+		}
+	}
+</style>
+</head>
+<body>	
+	<div id="toc"></div>
+	<div id="content" class="markdown-body"></div>
+<script>
+	var baseUrl = 'md/'
+	var toc = []
+	var title=''
+	var init_mdpath = baseUrl + 'sample.md'
+	$(document).ready(function () {
+		var [ URL,  mdpath] = getMDPath() 
+		if (mdpath=='') {
+			mdpath= init_mdpath
+		}
+		getMD(mdpath, false)
+	}); 
+  </script>
+</body>
+</html>
