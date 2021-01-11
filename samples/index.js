@@ -26,14 +26,38 @@
 			,location.search.replace(/^\?/, '')
 			];
 	};
+	getDirDepth =  function(s) {
+		if (s.substr(0,3) == "../") {
+			return 1 + getDirDepth(s.substr(3))
+		} else if (s.substr(0,2) == "./" ) { 
+			return getDirDepth(s.substr(2))
+		}
+		else return 0;
+	}
+	getAbsMDpath =  function(baseUrl,  currUrl) {
+		sp = baseUrl.split("/");
+		d = Math.min( getDirDepth(currUrl)-1, sp.length) ;
+		for (var i = 0; i <=d; i++) {
+			if (currUrl.substr(0,3) == "../") {
+				currUrl = currUrl.substr(3);
+			} else if (currUrl.substr(0,2) == "./" ) continue;
+			  else break;
+		}
+		console.log(sp.slice(0,d).join('/'))
+		console.log(currUrl)
+		return  sp.slice(0,d).join('/') + currUrl;
+		
+	}
 
 	const renderer = {
   		link(href, title, text) {
 			title =  title == null ? '' : '" title="'+ title
 			if (href.search(/:[0-9]*\/\//) >= 0) { // 外部連結
 				return '<a href="' + href + title + '">' + text + '</a>';
-			} else if (href.search(/\.md$/) >= 0) { // Other MD File
-				var l = '<a href="?' +  baseUrl + href + '">' + text + '</a>'
+			}
+			// Internal links form here
+			if (href.search(/\.md$/) >= 0) { // Other MD File
+				var l = '<a href="?' + getAbsMDpath(baseUrl, href)+ '">' + text + '</a>'
 				return l;
 			} else {	// Others
 				return '<a href="' + baseUrl + href + title + '">' + text + '</a>';

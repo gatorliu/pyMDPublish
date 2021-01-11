@@ -25,6 +25,9 @@
 	.markdown-body pre {
 		background-color: #282c34;
 	}
+	.hljs-comment {
+		color:aquamarine;
+	}
 
 	@media (max-width: 767px) {
 		.markdown-body {
@@ -34,22 +37,27 @@
 </style>
 </head>
 <body>	
-	<div id="toc"></div>
+	<div id="toc" style="float: right;"></div>
 	<div id="content" class="markdown-body"></div>
 <script>
 	
-	var baseUrl = 'md/'
-	var init_mdpath  = baseUrl + 'sample.md'
+	var baseUrl = ''
+	var init_mdpath  = baseUrl + 'md/sample.md'
 	var toc = []
 	var title=''
 
-	var [ URL,  mdpath] = getMDPath() 
+	var [ URL,  mdpath] = getMDPath() 	
+
 	if (mdpath=='') {
-		mdpath= baseUrl + 'sample.md'
+		mdpath= init_mdpath
 	}
+	baseUrl = mdpath.replace(/[^/]*.md$/, '')
+	console.log(baseUrl)
 	getMD(mdpath)
 
   </script>
-  <a  href="sample.md">a link</a>
+  <div class="footer">
+  <a  href="?MDHome/index.md">INDEX</a>
+</div>
 </body>
 </html>
