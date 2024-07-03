@@ -43,8 +43,8 @@
 			} else if (currUrl.substr(0,2) == "./" ) continue;
 			  else break;
 		}
-		console.log(sp.slice(0,d).join('/'))
-		console.log(currUrl)
+		//console.log(sp.slice(0,d).join('/'))
+		//console.log(currUrl)
 		return  sp.slice(0,d).join('/') + currUrl;
 		
 	}
@@ -53,14 +53,14 @@
   		link(href, title, text) {
 			title =  title == null ? '' : '" title="'+ title
 			if (href.search(/:[0-9]*\/\//) >= 0) { // 外部連結
-				return '<a href="' + href + title + '">' + text + '</a>';
+				return '<a href="' + href + title + '" target="_blank">' + text + '</a>';
 			}
 			// Internal links form here
 			if (href.search(/\.md$/) >= 0) { // Other MD File
 				var l = '<a href="?' + getAbsMDpath(baseUrl, href)+ '">' + text + '</a>'
 				return l;
 			} else {	// Others
-				return '<a href="' + baseUrl + href + title + '">' + text + '</a>';
+				return '<a href="' + baseUrl + href + title + '" target="_blank">' + text + '</a>';
 			}
 		  },
 		heading(text, level, raw) {
@@ -81,39 +81,94 @@
 				+ '>\n';
 		}
 	};
+
+	callback = function(data) {
+		const [configstr, mdstring]  = splitHeader(data)
+        var configs ={}
+        jsyaml.loadAll(configstr, function (obj) {
+            if (obj == null) return;
+            configs =  obj
+        });
+        if (configs.type == undefined || configs.type.toLowerCase() != 'slide' ) {
+ 	        marked_callback(configs, mdstring)
+        } else {
+ 	        revealjs_callback(configs, mdstring)
+        }
+
+    }
+
+ 	revealjs_callback = function(configs,mdstring) {
+
+            if (configs.slideOptions != undefined) {
+                opts = configs.slideOptions;
+                //alert(opts.transition)
+                if ( opts.transition != undefined ) {
+                    $('#data-markdown').attr('data-transition', opts.transition)
+                }
+            }
+        $('#revealjs-body').css('visibility', 'visible')    
+		$('#revealjs-body').html(mdstring);
+
+        Reveal.initialize({
+            plugins: [ RevealMath.KaTeX, RevealMarkdown, RevealHighlight]
+        });
+    }
+
 	// var mdstring
 	//var config
-	marked.use({ renderer });
-	callback = function(data) {
-		toc = [] // clean toc
-		const [configs, mdstring]  = splitHeader(data)
-		var markhtml = marked(mdstring, {
-				//renderer: new marked.Renderer(),
-				highlight: function(code, language) {
-					var validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
-					return '<code class="hljs handlebars">' + hljs.highlight(validLanguage, code).value + '</code>';
-					// return '<code class="hljs handlebars">' + hljs.highlightAuto(code).value
-				},
-				pedantic: false,
-				gfm: true,
-				breaks: false,
-				sanitize: false,
-				smartLists: true,
-				smartypants: false,
-				xhtml: false,
-				baseUrl: baseUrl
-				});
-		
-		var tocHTML = 'Table of Contents<ul>';
-		toc.forEach(function (entry) {
-		  tocHTML += '<li><a href="#'+entry.anchor+'">'+entry.text+'<a></li>\n';
-		});
-		tocHTML += '</ul>';
-		$('#toc').html(tocHTML)
-		$('#content').html(markhtml)
-		$(document).attr("title",toc[0].text)
+    /* config and load  Math
+        Cloudflare CDN not working. I don't know why
+    */
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        svg: {
+            fontCache: 'global'
+        }
+        };
 
-		MathJax.typesetPromise() // re-render Math
+        (function () {
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';
+        script.async = true;
+        document.head.appendChild(script);
+    })();
+	marked.use({ renderer });
+
+    marked.setOptions({
+        //renderer: new marked.Renderer(),
+        highlight: function(code, language) {
+            var validLanguage = hljs.getLanguage(language) ? language : 'bash' /* 'plaintext' */ ;
+            return '<code class="hljs handlebars">' + hljs.highlight(validLanguage, code).value + '</code>';
+            // return '<code class="hljs handlebars">' + hljs.highlightAuto(code).value
+        },
+        pedantic: false,
+        gfm: true,
+        breaks: false,
+        sanitize: false,
+        smartLists: true,
+        smartypants: false,
+        //xhtml: false,
+        //baseUrl: baseUrl
+    })
+	marked_callback = function(configs, mdstring) {
+        toc = [] // clean toc
+        var markhtml = marked.parse(mdstring);
+        if (configs.toc == undefined || configs.toc != false) {    
+            var tocHTML = 'Table of Contents<ul>';
+            toc.forEach(function (entry) {
+                tocHTML += '<li><a href="#'+entry.anchor+'">'+entry.text+'<a></li>\n';
+                });
+            tocHTML += '</ul>';
+            $('#toc').html(tocHTML)
+            
+        }
+		
+		$('.markdown-body').html(markhtml)
+        $(document).attr("title",toc[0].text)
+        if (MathJax.typesetPromise != undefined) MathJax.typesetPromise() // re-render Math
+		//katex.render($('.markdown-body')) // re-render Math
 	}
 
 	getMD_Local = function(mdpath, history_push=true) {
